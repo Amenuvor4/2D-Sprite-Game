@@ -1,0 +1,6 @@
+THINGS TO FIX:
+-- Adding the controls for at the bottom of the screen when in a specific event
+-- Whenever you want to drink a postion you get an error you need to fix that
+-- I also need to fix the tile trees because that doesn't work for some reason.
+-- Fix the collision domain size because it's too large
+-- Place the interactive trees at col 25 row 33 and place the chest at the end
