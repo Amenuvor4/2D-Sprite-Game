@@ -1,55 +1,16 @@
-.global floatScale4
-floatScale4:
-    # Step 1: Extract sign, exponent, and mantissa from uf
-    movl %edi, %eax             # Move uf (floating point as unsigned int) into %eax
-    andl $0x80000000, %eax      # Extract sign (0x80000000)
-    movl %edi, %ebx             # Copy uf to %ebx
-    andl $0x7F800000, %ebx      # Extract exponent (0x7F800000)
-    movl %edi, %ecx             # Copy uf to %ecx
-    andl $0x7FFFFF, %ecx        # Extract mantissa (0x7FFFFF)
+- Make sure there is a way to turn the light on/off
+- Implement a task bar inside the ui
+- Create a tutorial mode
+- Fix the effec thing in the objects class
+- Fix monster advance combat
 
-    # Step 2: Handle NaN or zero input
-    cmp $0, %ebx                # Check if exponent is all ones (NaN check)
-    je  handle_nan_or_zero      # If NaN (exp == 0x7F800000), jump to handle_nan_or_zero
-    cmp $0, %edi                # Check if uf is zero
-    je  handle_nan_or_zero      # If zero, jump to handle_nan_or_zero
 
-    # Step 3: Denormalized number check (exp == 0)
-    cmp $0, %ebx                # Check if exp == 0 (denormalized case)
-    je  denormalized_case       # If exp == 0, jump to denormalized_case
+How generate images:
+- First download the images
+- Make a method to ge those images
+- Call the method inside your constructor
+- Apply keys in keyHandler
+- add the used of keys to the update on the player class
+- Apply the changes to the draw function as well
 
-    # Step 4: Normalized number, adjust exponent
-    cmp $0x7F000000, %ebx       # Check if exponent >= 0x7F000000
-    jge  normalized_exponent    # If exp >= 0x7F000000, jump to normalized_exponent
-    cmp $0x3F800000, %ebx       # Check if exponent <= 0x3F800000 (small exponent case)
-    jle  small_exponent_case    # If exp <= 0x3F800000, jump to small_exponent_case
-
-normalized_exponent:
-    # Add 2 to the exponent to multiply by 4 (increase exponent by 2)
-    addl $0x800000, %ebx        # Increase exponent by 2 (add 0x800000)
-    jmp combine_result          # Jump to combine result
-
-small_exponent_case:
-    # Special handling for small exponents (e.g., subnormal cases)
-    addl $0x1000000, %ebx       # Increase exponent by 2^24 (0x1000000)
-    jmp combine_result          # Jump to combine result
-
-denormalized_case:
-    # Handle denormalized case (exp == 0)
-    shll $2, %ecx               # Multiply mantissa by 4 (shift left by 2)
-    cmp $0x7FFFFF, %ecx         # Check if mantissa overflows
-    jg  normalize_denormalized  # If mantissa overflows, normalize it
-
-combine_result:
-    # Combine sign, exponent, and mantissa to form the final result
-    orl %eax, %ebx              # Combine sign with exponent
-    orl %ecx, %ebx              # Combine mantissa with result
-    movl %ebx, %eax             # Return the result in %eax
-    ret
-
-normalize_denormalized:
-    # Normalize the denormalized mantissa
-    shr $1, %ecx                # Shift mantissa right by 1
-    addl $0x800000, %ecx        # Add 0x800000 to the mantissa to normalize it
-    jmp combine_result          # Combine result as normal
 

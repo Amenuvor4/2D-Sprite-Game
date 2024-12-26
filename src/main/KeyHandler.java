@@ -6,9 +6,11 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
 
     GamePanel gp;
-    public boolean upPressed, downPressed, leftPressed, rightPressed , enterPressed, shotKeyPressed;
+    public boolean upPressed, downPressed, leftPressed, rightPressed , enterPressed, shotKeyPressed, spacedPressed;
     //DEBUG//DEBUG//DEBuG//DEBUG//DEBuG//DEBUG//DEBuG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG
     boolean checkDrawTime = false;
+    public boolean godMode = false;
+    public boolean teleport = false;
     //DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG
 
     public KeyHandler(GamePanel gp){
@@ -22,11 +24,12 @@ public class KeyHandler implements KeyListener {
         if(gp.gameState == gp.titleState) {titleState(code);}
         else if (gp.gameState == gp.playState) {playState(code);}
         else if (gp.gameState == gp.pauseState) {pauseState(code);}
-        else if (gp.gameState == gp.dialogueState) {dialogueState(code);}
+        else if (gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState) {dialogueState(code);}
         else if(gp.gameState == gp.characterState) {characterState(code);}
         else if(gp.gameState == gp.optionState){optionsState(code);}
         else if(gp.gameState == gp.gameOverState){gameOverState(code);}
         else if(gp.gameState == gp.tradeState){tradeState(code);}
+        else if(gp.gameState == gp.mapState){mapState(code);}
     }
 
     public void titleState(int code){
@@ -36,7 +39,7 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ENTER) {
                 switch (gp.ui.commandNum) {
                     case 0: gp.ui.titleScreenState = 1; break;
-//                  case 1: LOAD STUFF
+                    case 1: gp.saveLoad.load(); gp.gameState = gp.playState; gp.playMusic(0); break;
                     case 2: System.exit(0);}
             }}
         else if (gp.ui.titleScreenState == 1) {
@@ -56,9 +59,16 @@ public class KeyHandler implements KeyListener {
                         gp.ui.titleScreenState = 0;
                         gp.ui.commandNum = 0;
                         break;
-                }}}}
+                }
+            }
+        }
+    }
+
+
+    private boolean shiftPressed = false;
 
     public void playState(int code){
+        if(code == KeyEvent.VK_SHIFT){shiftPressed = true;}
         if (code == KeyEvent.VK_W) {upPressed = true;}
         if (code == KeyEvent.VK_S) {downPressed = true;}
         if (code == KeyEvent.VK_A) {leftPressed = true;}
@@ -66,8 +76,15 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_P) {gp.gameState = gp.pauseState;}
         if (code == KeyEvent.VK_C) {gp.gameState = gp.characterState;}
         if (code == KeyEvent.VK_ENTER) {enterPressed = true;}
-        if (code == KeyEvent.VK_SPACE) {shotKeyPressed = true;}
+        if (code == KeyEvent.VK_F) {shotKeyPressed = true;}
+        if (code == KeyEvent.VK_SPACE){spacedPressed = true;}
         if (code == KeyEvent.VK_ESCAPE) {gp.gameState = gp.optionState;}
+        if (code == KeyEvent.VK_M){gp.gameState = gp.mapState;}
+        if(code == KeyEvent.VK_Q){gp.gameState = gp.questState;}
+        if (code == KeyEvent.VK_X){
+            if(!gp.map.miniMapOn){gp.map.miniMapOn = true;}
+            else{gp.map.miniMapOn = false;}
+        }
         //DEBUG
         if  (code == KeyEvent.VK_T) {
             checkDrawTime = !checkDrawTime;
@@ -79,6 +96,19 @@ public class KeyHandler implements KeyListener {
 
             }
         }
+
+
+        if (code == KeyEvent.VK_Q && shiftPressed) {
+            teleport = true;
+            System.out.println("Q is being pressed");
+        }
+        if (code == KeyEvent.VK_G){
+            if(!godMode){
+                godMode = true;
+            } else if (godMode) {
+                godMode = false;
+            }
+        }
     }
 
     public void pauseState(int code) {
@@ -86,7 +116,7 @@ public class KeyHandler implements KeyListener {
     }
 
     public void dialogueState(int code) {
-        if (code == KeyEvent.VK_ENTER) {gp.gameState = gp.playState;}
+        if (code == KeyEvent.VK_ENTER) {enterPressed = true;}
     }
 
     public void characterState(int code) {
@@ -177,7 +207,7 @@ public class KeyHandler implements KeyListener {
 
         if(code == KeyEvent.VK_ENTER){
             if(gp.ui.commandNum == 0){
-                gp.retry();
+                gp.resetGame(false);
                 gp.gameState = gp.playState;
                 gp.playMusic(0);
             }
@@ -185,7 +215,7 @@ public class KeyHandler implements KeyListener {
                 gp.ui.titleScreenState = 0;
                 gp.gameState = gp.titleState;
                 gp.stopMusic();
-                gp.restart();
+                gp.resetGame(true);
             }
         }
     }
@@ -231,6 +261,12 @@ public class KeyHandler implements KeyListener {
     }
 
 
+    public void mapState(int code){
+
+        if(code == KeyEvent.VK_M){
+            gp.gameState = gp.playState;
+        }
+    }
 
     public void playerInventory(int code){
         if(code == KeyEvent.VK_W){
@@ -301,7 +337,10 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_S){downPressed = false;}
         if(code == KeyEvent.VK_A){leftPressed = false;}
         if(code == KeyEvent.VK_D){rightPressed = false;}
-        if(code == KeyEvent.VK_SPACE){shotKeyPressed = false;}
+        if(code == KeyEvent.VK_F){shotKeyPressed = false;}
+        if(code == KeyEvent.VK_ENTER){enterPressed = false;}
+        if(code == KeyEvent.VK_SPACE){spacedPressed = false;}
+        if(code == KeyEvent.VK_SHIFT){shiftPressed = false;}
     }
 
     //UNNEEDED METHOD

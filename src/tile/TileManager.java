@@ -25,6 +25,9 @@ public class TileManager {
         getTileImage();
         loadMap("/maps/tutorial_mapV2", 0);
         loadMap("/maps/interior01.txt",1);
+        loadMap("/maps/dungeon01.txt", 2);
+        loadMap("/maps/dungeon02.txt",3);
+
     }
 
     public void getTileImage() {
@@ -41,7 +44,6 @@ public class TileManager {
         setup(8, "grass00", false);
         setup(9, "grass00", false);
         // --------------------------------------------------
-
         setup(10, "grass00", false);
         setup(11, "grass01", false);
         setup(12, "water00", true);
@@ -77,7 +79,8 @@ public class TileManager {
         setup(42, "hut", false);
         setup(43, "floor01", false);
         setup(44, "table01", true);
-
+        setup(45, "036", false);
+        setup(46,"037", false);
     }
 
 

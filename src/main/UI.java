@@ -5,7 +5,6 @@ package main;
  */
 
 import entity.Entity;
-import entity.Merchant_NPC;
 import object.OBJ_Coin_Bronze;
 import object.OBJ_ManaCrystal;
 import object.OBJ_hearts;
@@ -29,7 +28,8 @@ public class UI {
     Graphics2D g2;
 
     // Font to be used for displaying UI text
-    Font maruMonica, purisaB;
+    public Font maruMonica;
+    Font purisaB;
     // BufferedImage keyImage;
     BufferedImage heart_full, heart_half, heart_empty, crystal_full, crystal_blank, coin;
 
@@ -51,6 +51,8 @@ public class UI {
     public int subState = 0;
     int counter = 0;
     public Entity npc;
+    public int charIndex = 0;
+    String combinedText = "";
 
 
     double playTime;
@@ -105,6 +107,7 @@ public class UI {
         if(gp.gameState == gp.playState){
             //Play state stuff
             drawPlayerLife();
+            drawMonsterLife();
             drawMessage();
         }
         //PAUSE STATE
@@ -130,6 +133,11 @@ public class UI {
             drawOptionsScreen();
         }
 
+        // QUEST STATE
+        if(gp.gameState == gp.questState){
+            drawQuestScreen(gp.player);
+        }
+
         // GAME OVER STATE
         if(gp.gameState == gp.gameOverState){
             drawGameOverScreen();
@@ -140,11 +148,56 @@ public class UI {
         if (gp.gameState == gp.transitionState){
             drawTransition();
         }
-
+        // TRADE STATE
         if(gp.gameState == gp.tradeState){
             drawTradeScreen();
         }
 
+        // SLEEP STATE
+        if(gp.gameState == gp.sleepState){
+            drawSleepScreen();
+        }
+
+    }
+    public void drawMonsterLife(){
+        //MONSTER HEALTH
+        for(int i =0; i < gp.monster[1].length; i++) {
+            Entity monster = gp.monster[gp.currentMap][i];
+            if (monster != null && monster.inCamera()) {
+                if (monster.hpBarOn && !monster.boss) {
+
+                    double oneScale = (double) gp.tileSize / monster.maxLife;
+                    double hpBarValue = oneScale * monster.life;
+
+                    g2.setColor(Color.darkGray);
+                    g2.fillRect(monster.getScreenX() - 1, monster.getScreenY() - 16, gp.tileSize + 2, 12);
+                    g2.setColor(new Color(255, 0, 30));
+                    g2.fillRect(monster.getScreenX(), monster.getScreenY() - 15, (int) hpBarValue, 10);
+
+                    monster.hpBarCounter++;
+                    if (monster.hpBarCounter > 600) {
+                        monster.hpBarCounter = 0;
+                        monster.hpBarOn = false;
+                    }
+                }
+                else if(monster.boss){
+                    double oneScale = (double) gp.tileSize*8 / monster.maxLife;
+                    double hpBarValue = oneScale * monster.life;
+
+                    int x = gp.screenWidth/2 - gp.tileSize*4;
+                    int y = gp.tileSize*10;
+                    g2.setColor(Color.darkGray);
+                    g2.fillRect(x - 1, y - 1, gp.tileSize*8 + 2, 22);
+                    g2.setColor(new Color(255, 0, 30));
+                    g2.fillRect(x, y, (int) hpBarValue, 20);
+
+                    g2.setFont(g2.getFont().deriveFont(Font.BOLD,24f));
+                    g2.setColor(Color.white);
+                    g2.drawString(monster.name, x+4, y-10);
+
+                }
+            }
+        }
     }
     public void drawMessage(){
         int messageX = gp.tileSize;
@@ -446,6 +499,41 @@ public class UI {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 32));
         x += gp.tileSize;
         y += gp.tileSize;
+
+        if(npc.dialogues[npc.dialogueSet][npc.dialogueIndex] != null){
+            //currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
+
+            char[] characters = npc.dialogues[npc.dialogueSet][npc.dialogueIndex].toCharArray();
+
+            if(charIndex < characters.length){
+                // ADD SOUND HERE
+                // gp.playSE(17);
+                String s = String.valueOf(characters[charIndex]);
+                combinedText = combinedText + s;
+                currentDialogue = combinedText;
+                charIndex++;
+            }
+            if(gp.keyH.enterPressed){
+                charIndex = 0;
+                combinedText = "";
+                if(gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState){
+                    npc.dialogueIndex++;
+                    gp.keyH.enterPressed = false;
+                }
+            }
+        }
+        else{
+            // If no text is in the array
+            npc.dialogueIndex = 0;
+            if(gp.gameState == gp.dialogueState){
+                gp.gameState = gp.playState;
+            }
+            if(gp.gameState == gp.cutSceneState){
+                gp.csManager.scenePhase++;
+            }
+        }
+
+
         /* Splits the text at the keyword "\n". After that we draw the new line inside
         the dialog bar in which the position goes towards the middle of the screen by 40 frames */
         for(String line: currentDialogue.split("\n")){
@@ -496,10 +584,13 @@ public class UI {
 
             //EQUIP CURSOR
             if(entity.inventory.get(i) == entity.currentWeapon ||
-                    entity.inventory.get(i) == entity.currentShield) {
+                    entity.inventory.get(i) == entity.currentShield ||
+                    entity.inventory.get(i) == entity.currentLight) {
                 g2.setColor(new Color(240,190,90));
                 g2.fillRoundRect(slotX, slotY, gp.tileSize, gp.tileSize, 10, 10);
             }
+            // Debug
+            //System.out.println("Inventory: " + entity.inventory);
 
             g2.drawImage(entity.inventory.get(i).down1, slotX, slotY, null);
             //DISPLAY AMOUNT
@@ -572,6 +663,8 @@ public class UI {
         }
 
     }
+
+
     public void drawGameOverScreen(){
         g2.setColor(new Color(0,0,0, 150) );
         g2.fillRect(0,0, gp.screenWidth, gp.screenHeight);
@@ -612,6 +705,35 @@ public class UI {
             g2.drawString(">", x-40, y);
 
         }
+    }
+
+
+    public void drawQuestScreen(Entity entity){
+        g2.setColor(Color.white);
+        g2.setFont(g2.getFont().deriveFont(32F));
+
+        int frameX = gp.tileSize;
+        int frameY = gp.tileSize;
+        int frameWidth = gp.tileSize*8;
+        int frameHeight = gp.tileSize*9;
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight);
+
+        int textX = frameX + 28;
+        int textY = frameY + gp.tileSize;
+        final int lineHeight = frameHeight/13;
+        String text =  "You currently have no quests!";
+        if(entity.quests.isEmpty()){
+            g2.drawString(text, textX, textY);
+
+        } else{
+            for()
+        }
+
+
+
+
+
+
     }
     public void drawOptionsScreen(){
         g2.setColor(Color.white);
@@ -771,6 +893,7 @@ public class UI {
             if (gp.keyH.enterPressed) {
                 subState = 0;
                 gp.keyH.enterPressed = false;
+                gp.resetGame(true);
             }
         }
     }
@@ -872,6 +995,7 @@ public class UI {
 
             gp.eHandler.previousEventX = gp.player.worldX;
             gp.eHandler.previousEventY = gp.player.worldY;
+            gp.changeArea();
         }
     }
     public void drawTradeScreen(){
@@ -890,6 +1014,8 @@ public class UI {
         gp.keyH.enterPressed = false;
     }
     public void tradeSelect() {
+
+        npc.dialogueSet = 0;
         drawDialogScreen();
 
         //Draw Window
@@ -933,8 +1059,7 @@ public class UI {
 
             if(gp.keyH.enterPressed){
                 commandNum = 0;
-                gp.gameState = gp.dialogueState;
-                currentDialogue = "Come again, hehe!";
+                npc.startDialogue(npc, 1);
             }
         }
     }
@@ -983,22 +1108,14 @@ public class UI {
             if (gp.keyH.enterPressed){
                 if(npc.inventory.get(itemIndex).price > gp.player.coin){
                     subState = 0;
-                    gp.gameState = gp.dialogueState;
-                    currentDialogue = "You need more coins to buy that!!!";
-                    drawDialogScreen();
-                } else if (gp.player.inventory.size() == gp.player.maxInventorySize) {
-                    subState = 0;
-                    gp.gameState = gp.dialogueState;
-                    currentDialogue = "Your Inventory is full";
+                    npc.startDialogue(npc,2);
                 } else{
                     if(gp.player.canObtainItem(npc.inventory.get(itemIndex))){
                         gp.player.coin -= npc.inventory.get(itemIndex).price;
                     }
                     else{
                         subState = 0;
-                        gp.gameState = gp.dialogueState;
-                        currentDialogue = "You cannot carry any more";
-                    }
+                        npc.startDialogue(npc, 3);}
                 }
             }
         }
@@ -1046,9 +1163,8 @@ public class UI {
                         || gp.player.inventory.get(itemIndex) == gp.player.currentShield) {
                     commandNum = 0;
                     subState = 0;
-                    gp.gameState = gp.dialogueState;
-                    currentDialogue = "You cannot sell an equipped item!";
-                } else {
+                    npc.startDialogue(npc,4);
+                    } else {
                     if(gp.player.inventory.get(itemIndex).amount > 1){
                         gp.player.inventory.get(itemIndex).amount--;
                     }else{
@@ -1058,6 +1174,29 @@ public class UI {
                     gp.player.coin += price;
                 }
             }
+        }
+    }
+    public void drawSleepScreen(){
+        counter++;
+
+        if(counter < 120){
+            gp.eManager.lighting.filterAlpha += 0.01f;
+            if(gp.eManager.lighting.filterAlpha > 1f){
+                gp.eManager.lighting.filterAlpha = 1f;
+            }
+        }
+
+        if(counter >= 120 ){
+            gp.eManager.lighting.filterAlpha -= 0.01f;
+            if(gp.eManager.lighting.filterAlpha <= 0){
+                gp.eManager.lighting.filterAlpha = 0;
+                counter = 0;
+                gp.eManager.lighting.dayState = gp.eManager.lighting.day;
+                gp.eManager.lighting.dayCounter = 0;
+                gp.gameState = gp.playState;
+                gp.player.getImage();
+            }
+
         }
     }
     public int getItemIndexOnSlot(int slotCol, int slotRow){

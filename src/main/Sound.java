@@ -27,6 +27,17 @@ public class Sound {
         soundURL[9] = getClass().getClassLoader().getResource("sound/cursor.wav");
         soundURL[10] = getClass().getClassLoader().getResource("sound/burning.wav");
         soundURL[11] = getClass().getClassLoader().getResource("sound/cuttree.wav");
+        soundURL[12] = getClass().getClassLoader().getResource("sound/sleep.wav");
+        soundURL[13] = getClass().getClassLoader().getResource("sound/blocked.wav");
+        soundURL[14] = getClass().getClassLoader().getResource("sound/gameover.wav");
+        soundURL[15] = getClass().getClassLoader().getResource("sound/stairs.wav");
+        soundURL[16] = getClass().getClassLoader().getResource("sound/Merchant.wav");
+        soundURL[17] = getClass().getClassLoader().getResource("sound/Dungeon.wav");
+        soundURL[18] = getClass().getClassLoader().getResource("sound/chipwall.wav");
+        soundURL[19] = getClass().getClassLoader().getResource("sound/dooropen.wav");;
+        soundURL[20] = getClass().getClassLoader().getResource("sound/FinalBattle.wav");
+        //soundURL[20];
+
     }
 
 

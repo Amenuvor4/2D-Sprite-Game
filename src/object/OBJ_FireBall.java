@@ -6,14 +6,16 @@ import main.GamePanel;
 
 public class OBJ_FireBall extends Projectile {
     GamePanel gp;
+    public static final String objName = "FireBall";
     public OBJ_FireBall(GamePanel gp) {
         super(gp);
         this.gp = gp;
-        name = "FireBall";
+        name = objName;
         speed = 5;
         maxLife = 80;
         life = maxLife;
-        attack = 2;
+        attack = 25;
+        knockBackPower = 5;
         useCost = 1;
         alive = false;
         getImage();

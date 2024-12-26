@@ -25,16 +25,24 @@ public class OldMan_NPC extends Entity{
         solidArea.width = 32;
         solidArea.height = 32;
 
+        dialogueSet = -1;
+
         getImage();
         setDialogue();
     }
 
 
     public void setDialogue(){
-        dialogue[0] = "Hello, lad";
-        dialogue[1] = "HOWDY";
-        dialogue[2] = "WHATS UP";
-        dialogue[3] = "My name is young lord Bartholomeus";
+        dialogues[0][0] = "Hello, lad";
+        dialogues[0][1] = "HOWDY";
+        dialogues[0][2] = "WHATS UP";
+        dialogues[0][3] = "My name is young lord Bartholomeus";
+
+        dialogues[1][0]= "If you become tired, rest at then water.";
+        dialogues[1][1] = "However, the monsters reappear if you rest.\nI don't know why but that's how it works";
+        dialogues[1][2] = "In any case, don't push yourself too hard";
+
+        dialogues[2][0] = "i wonder how to open that door...";
     }
 
 
@@ -91,8 +99,21 @@ public class OldMan_NPC extends Entity{
     public void speak(){
 
         // Do character specific stuff
-        super.speak();
-        onPath =  true;
+        facePlayer();
+        startDialogue(this,dialogueSet);
+
+
+        dialogueSet++;
+        if(dialogues[dialogueSet][0] == null){
+
+            dialogueSet--;
+        }
+
+        if(gp.player.life < gp.player.maxLife/2){
+            dialogueSet = 1;
+        }
+
+        // IF you complete a quest
 
     }
 

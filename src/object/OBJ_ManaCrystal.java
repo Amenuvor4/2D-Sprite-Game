@@ -7,11 +7,13 @@ public class OBJ_ManaCrystal extends Entity {
 
     GamePanel gp;
 
+    public static final String objName = "Mana Crystal";
+
     public OBJ_ManaCrystal(GamePanel gp) {
         super(gp);
         this.gp = gp;
 
-        name = "Mana Crystal";
+        name = objName;
         type = type_pickupOnly;
         value = 1;
         down1 = setup("/objects/manacrystal_full", gp.tileSize, gp.tileSize);

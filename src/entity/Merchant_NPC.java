@@ -40,7 +40,11 @@ public class Merchant_NPC extends Entity{
     }
 
     public void setDialogue(){
-        dialogue[0] = "You found me! He He, I have some good stuff. \n Do you want to trade?";
+        dialogues[0][0] = "You found me! He He, I have some good stuff. \n Do you want to trade?";
+        dialogues[1][0] = "Come again, hehe!";
+        dialogues[2][0] = "You need more coins to buy this";
+        dialogues[3][0] = "You cannot carry any more!";
+        dialogues[4][0] = "You cannot sell an equipped item!";
     }
 
 
@@ -55,7 +59,7 @@ public class Merchant_NPC extends Entity{
 
 
     public void speak(){
-        super.speak();
+        facePlayer();
         gp.gameState = gp.tradeState;
         gp.ui.npc = this;
     }

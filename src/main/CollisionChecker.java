@@ -14,6 +14,7 @@ public class CollisionChecker {
         int entityRightWorldX = entity.worldX + entity.solidArea.x + entity.solidArea.width;
         int entityTopWorldY = entity.worldY + entity.solidArea.y;
         int entityBottomWorldY = entity.worldY + entity.solidArea.y + entity.solidArea.height;
+
         int entityLeftCol = entityLeftWorldX / gp.tileSize;
         int entityRightCol = entityRightWorldX / gp.tileSize;
         int entityTopRow = entityTopWorldY / gp.tileSize;
@@ -21,7 +22,15 @@ public class CollisionChecker {
 
         int tileNum1, tileNum2;
 
-        switch (entity.direction) {
+
+        // Use a temporal direction when it's being knocked back
+        String direction =  entity.direction;
+        if(entity.knockBack){
+            direction = entity.knockBackDirection;
+
+        }
+
+        switch (direction) {
             case "up":
                 entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[gp.currentMap][entityLeftCol][entityTopRow];
@@ -41,17 +50,14 @@ public class CollisionChecker {
                 if (gp.tileM.tile[tileNum1].collision
                         || gp.tileM.tile[tileNum2].collision) {
 
-                    entity.collisionOn = true;
+                   entity.collisionOn = true;
                 }
                 break;
             case "left":
                 entityLeftCol = (entityLeftWorldX - entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[gp.currentMap][entityLeftCol][entityTopRow];
                 tileNum2 = gp.tileM.mapTileNum[gp.currentMap][entityLeftCol][entityBottomRow];
-
-                if (gp.tileM.tile[tileNum1].collision
-                        || gp.tileM.tile[tileNum2].collision) {
-
+                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
                     entity.collisionOn = true;
                 }
                 break;
@@ -59,9 +65,7 @@ public class CollisionChecker {
                 entityRightCol = (entityRightWorldX + entity.speed) / gp.tileSize;
                 tileNum1 = gp.tileM.mapTileNum[gp.currentMap][entityRightCol][entityTopRow];
                 tileNum2 = gp.tileM.mapTileNum[gp.currentMap][entityRightCol][entityBottomRow];
-
-                if (gp.tileM.tile[tileNum1].collision
-                        || gp.tileM.tile[tileNum2].collision) {
+                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
 
                     entity.collisionOn = true;
                 }
@@ -73,7 +77,13 @@ public class CollisionChecker {
         int index = 999;
 
 
-        for (int i = 0; i < gp.obj.length; i++) {
+        String direction =  entity.direction;
+        if(entity.knockBack){
+            direction = entity.knockBackDirection;
+
+        }
+
+        for (int i = 0; i < gp.obj[1].length; i++) {
             if (gp.obj[gp.currentMap][i] != null) {
 
                 // Get entity's solid area position
@@ -86,7 +96,7 @@ public class CollisionChecker {
                 gp.obj[gp.currentMap][i].solidArea.y = gp.obj[gp.currentMap][i].worldY
                         + gp.obj[gp.currentMap][i].solidArea.y;
 
-                switch (entity.direction) {
+                switch (direction) {
                     case "up":
                         entity.solidArea.y -= entity.speed;
                         break;
@@ -122,6 +132,13 @@ public class CollisionChecker {
     public int checkEntity(Entity entity, Entity[][] target) {
         int index = 999;
 
+        // Use a temporal direction when it's being knocked back
+        String direction =  entity.direction;
+        if(entity.knockBack){
+            direction = entity.knockBackDirection;
+
+        }
+
         for (int i = 0; i < target[1].length; i++) {
             if (target[gp.currentMap][i] != null) {
 
@@ -135,7 +152,7 @@ public class CollisionChecker {
                 target[gp.currentMap][i].solidArea.y = target[gp.currentMap][i].worldY
                         + target[gp.currentMap][i].solidArea.y;
 
-                switch (entity.direction) {
+                switch (direction) {
                     case "up":
                         entity.solidArea.y -= entity.speed;
                         break;

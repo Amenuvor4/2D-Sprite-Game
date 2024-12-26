@@ -1,12 +1,12 @@
 package main;
 
+import data.Progress;
 import entity.Entity;
-
-import java.awt.*;
 
 public class EventHandler {
     GamePanel gp;
     EventRect[][][] eventRect;
+    Entity eventMaster;
 
     int previousEventX = 0;
     int previousEventY = 0;
@@ -15,6 +15,10 @@ public class EventHandler {
     boolean canTouchEvent = true;
     int tempMap, tempCol, tempRow;
     public EventHandler(GamePanel gp){
+
+        this.gp = gp;
+
+        eventMaster = new Entity(gp);
 
         eventRect = new EventRect[gp.maxMap][gp.maxWorldCol][gp.maxWorldRow];
 
@@ -44,13 +48,17 @@ public class EventHandler {
 
         }
 
-
-
-
-        this.gp = gp;
+        setDialogue();
     }
 
 
+    public void setDialogue() {
+
+        eventMaster.dialogues[0][0] = "You fall into a pit!";
+        eventMaster.dialogues[1][0] = "You have found the healing fountain\n" + "The progress has been saved";
+        eventMaster.dialogues[1][1] = "Damn this is good Water";
+
+    }
 
     public void checkEvent() {
 
@@ -65,9 +73,23 @@ public class EventHandler {
         if(canTouchEvent){
             if(hit(0,27, 16, "right")){damagePit( gp.dialogueState);}
             else if (hit(0,23, 21, "down")){healFountain(gp.dialogueState);}
-            else if (hit(0,13,38, "any")){teleport(1,12, 13);}
-            else if (hit(1,12, 13, "down")){teleport(0,13,38);}
+            else if (hit(0,13,38, "any")){teleport(1,12, 13, gp.indoor);} // To the merchant's house
+            else if (hit(1,12, 13, "down")){teleport(0,13,38, gp.outside);} // to outside
             else if (hit(1,12,9,"up")){speak(gp.npc[1][0]);}
+            else if (hit(0,10,9,"any")){teleport(2, 9, 41, gp.dungeon);} // To the dungeon
+            else if (hit(2,9,41,"any")){teleport(0, 10, 9, gp.outside);} // To outside
+            else if (hit(2,8,7,"any")){teleport(3, 26, 41, gp.dungeon);} // to B2
+            else if (hit(3,26,41,"any")){teleport(2, 8, 7, gp.dungeon);} // to B1
+            else if (hit(3,25,27,"any")){skullKing();}
+        }
+        if(gp.keyH.teleport){
+            if(gp.currentMap == 0){
+                teleport(2, 9, 41, gp.dungeon);
+            }
+            if(gp.currentMap == 2){
+                teleport(3, 26, 41, gp.dungeon);
+            }
+            gp.keyH.teleport = false;
         }
 
 
@@ -108,7 +130,7 @@ public class EventHandler {
 
         gp.gameState = gameState;
         gp.playSE(7);
-        gp.ui.currentDialogue = "You've fallen into a pit";
+        eventMaster.startDialogue(eventMaster, 0);
         gp.player.life--;
         //eventRect[col][row].eventDone = true;
         canTouchEvent = false;
@@ -120,10 +142,11 @@ public class EventHandler {
             gp.gameState = gameState;
             gp.playSE(3);
             gp.player.attackCancel = true;
-            gp.ui.currentDialogue = "You have found the healing fountain";
+            eventMaster.startDialogue(eventMaster, 1);
             gp.player.life = gp.player.maxLife;
             gp.player.mana = gp.player.maxMana;
             gp.aSetter.setMonster();
+            gp.saveLoad.save();
         }
 
         gp.keyH.enterPressed = false;
@@ -134,12 +157,14 @@ public class EventHandler {
 
 
     // You can also make a teleport function but its optional.
-    public void teleport(int map, int col, int row){
+    public void teleport(int map, int col, int row, int area){
         gp.gameState = gp.transitionState;
+        gp.nextArea = area;
         tempMap = map;
         tempCol = col;
         tempRow = row;
         canTouchEvent = false;
+        gp.playSE(15);
 
     }
 
@@ -149,6 +174,15 @@ public class EventHandler {
             gp.player.attackCancel = true;
             entity.speak();
         }
+    }
+
+    public void skullKing(){
+
+        if(!gp.bossBattleOn && !Progress.skeletonDefeated){
+            gp.gameState = gp.cutSceneState;
+            gp.csManager.sceneNum = gp.csManager.skullKing;
+        }
+
     }
 
 
