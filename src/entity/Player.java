@@ -68,6 +68,7 @@ public class Player extends Entity {
         coin = 10000;
         currentWeapon = new OBJ_Sword_Normal(gp);
         currentShield = new OBJ_Shield_Wood(gp);
+        currentQuest = null;
         currentLight = null;
         projectile = new OBJ_FireBall(gp);
         attack = getAttack();

@@ -3,6 +3,7 @@ package entity;
 import main.GamePanel;
 
 import java.awt.*;
+import java.util.Objects;
 import java.util.Random;
 
 public class OldMan_NPC extends Entity{
@@ -25,6 +26,7 @@ public class OldMan_NPC extends Entity{
         solidArea.width = 32;
         solidArea.height = 32;
 
+        currentDialogue = null;
         dialogueSet = -1;
 
         getImage();
@@ -34,9 +36,13 @@ public class OldMan_NPC extends Entity{
 
     public void setDialogue(){
         dialogues[0][0] = "Hello, lad";
-        dialogues[0][1] = "HOWDY";
-        dialogues[0][2] = "WHATS UP";
-        dialogues[0][3] = "My name is young lord Bartholomeus";
+        dialogues[0][1] = "My name is young lord Bartholomeus";
+        dialogues[0][2] = "I have a very important job for you";
+        dialogues[0][3] = "I want to test out you skills and to make sure you\n are not a bum";
+        dialogues[0][4] = "Go slay 5 green slime monsters and come back\n and I'll give you something special";
+        questDialogues.add(dialogues[0][4]);
+
+
 
         dialogues[1][0]= "If you become tired, rest at then water.";
         dialogues[1][1] = "However, the monsters reappear if you rest.\nI don't know why but that's how it works";
@@ -108,6 +114,8 @@ public class OldMan_NPC extends Entity{
 
             dialogueSet--;
         }
+
+
 
         if(gp.player.life < gp.player.maxLife/2){
             dialogueSet = 1;

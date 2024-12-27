@@ -27,6 +27,7 @@ public class KeyHandler implements KeyListener {
         else if (gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState) {dialogueState(code);}
         else if(gp.gameState == gp.characterState) {characterState(code);}
         else if(gp.gameState == gp.optionState){optionsState(code);}
+        else if(gp.gameState == gp.questState){questState(code);}
         else if(gp.gameState == gp.gameOverState){gameOverState(code);}
         else if(gp.gameState == gp.tradeState){tradeState(code);}
         else if(gp.gameState == gp.mapState){mapState(code);}
@@ -187,6 +188,12 @@ public class KeyHandler implements KeyListener {
 
         }
 
+    }
+
+    public void questState(int code){
+        if(code == KeyEvent.VK_Q){
+            gp.gameState = gp.playState;
+        }
     }
 
     public void gameOverState(int code){

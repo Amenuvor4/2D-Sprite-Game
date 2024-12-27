@@ -5,6 +5,7 @@ package main;
  */
 
 import entity.Entity;
+import entity.OldMan_NPC;
 import object.OBJ_Coin_Bronze;
 import object.OBJ_ManaCrystal;
 import object.OBJ_hearts;
@@ -501,25 +502,35 @@ public class UI {
         y += gp.tileSize;
 
         if(npc.dialogues[npc.dialogueSet][npc.dialogueIndex] != null){
-            //currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
+            currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
 
             char[] characters = npc.dialogues[npc.dialogueSet][npc.dialogueIndex].toCharArray();
 
             if(charIndex < characters.length){
                 // ADD SOUND HERE
-                // gp.playSE(17);
+                gp.playSE(17);
                 String s = String.valueOf(characters[charIndex]);
                 combinedText = combinedText + s;
                 currentDialogue = combinedText;
                 charIndex++;
             }
-            if(gp.keyH.enterPressed){
+            if(gp.keyH.enterPressed && !npc.questDialogues.contains(currentDialogue)){
                 charIndex = 0;
                 combinedText = "";
                 if(gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState){
                     npc.dialogueIndex++;
                     gp.keyH.enterPressed = false;
                 }
+            }
+            if(npc.questDialogues.contains(currentDialogue)){
+                String text = "Accept Quest";
+                x -= 20;
+                y -= 10;
+                g2.drawString(text, x, y);
+                if(commandNum == 0){
+                    g2.drawString(">", x-40, y);
+                }
+
             }
         }
         else{
@@ -725,14 +736,34 @@ public class UI {
         if(entity.quests.isEmpty()){
             g2.drawString(text, textX, textY);
 
-        } else{
-            for()
         }
+        else{
+            g2.setFont(g2.getFont().deriveFont(24F));
+            int circleDiameter  = 16;
+            int circleX = textX - 30;
+            int circleY = textY - circleDiameter + 4;
+            textX += 10;
+            textY -= 10;
+            for(int i = 0; i< entity.quests.size(); i++){
+                Entity quest = entity.quests.get(i);
 
+                if(quest.equals(gp.player.currentQuest)){
+                    g2.setColor(Color.green);
+                }else{
+                    g2.setColor(Color.gray);
+                }
 
+                //Draw Circle
+                g2.fillOval(circleX, circleY, circleDiameter, circleDiameter);
 
+                //Draw the quest name
+                g2.setColor(Color.white);
+                g2.drawString(quest.name, textX, textY);
+                circleY -= circleDiameter + 10;
+                textY -= lineHeight;
+            }
 
-
+        }
 
     }
     public void drawOptionsScreen(){

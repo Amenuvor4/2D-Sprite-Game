@@ -9,6 +9,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Stack;
 
 import javax.swing.JPanel;
 

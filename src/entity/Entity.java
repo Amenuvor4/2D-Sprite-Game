@@ -21,6 +21,7 @@ public class Entity {
     public Rectangle attackArea = new Rectangle(0,0,0,0);
     public int solidAreaDefaultX, solidAreaDefaultY;
     public String[][] dialogues = new String[20][20];
+    public ArrayList<String> questDialogues = new ArrayList<>();
     public Entity attacker;
     public Entity linkedEntity;
     public boolean temp = false;
@@ -86,6 +87,8 @@ public class Entity {
     public int motion2_direction;
     public Entity currentWeapon;
     public Entity currentShield;
+    public Entity currentQuest;
+    public String currentDialogue;
     public Entity currentLight;
     public Projectile projectile;
     public boolean boss;
