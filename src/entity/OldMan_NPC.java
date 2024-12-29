@@ -26,7 +26,7 @@ public class OldMan_NPC extends Entity{
         solidArea.width = 32;
         solidArea.height = 32;
 
-        currentDialogue = null;
+        currentDialogue = " ";
         dialogueSet = -1;
 
         getImage();
@@ -41,6 +41,13 @@ public class OldMan_NPC extends Entity{
         dialogues[0][3] = "I want to test out you skills and to make sure you\n are not a bum";
         dialogues[0][4] = "Go slay 5 green slime monsters and come back\n and I'll give you something special";
         questDialogues.add(dialogues[0][4]);
+        if(!gp.ui.declinedQuest){
+            dialogues[0][5] = "A Journey of a thousand miles begins with a single step";
+            dialogues[0][6] = "I wish you luck";
+        }else{
+            dialogues[0][5] = "Get away from my site...\n you disgust me ";
+            dialogues[0][6] = "pathetic weakling";
+        }
 
 
 
@@ -49,6 +56,8 @@ public class OldMan_NPC extends Entity{
         dialogues[1][2] = "In any case, don't push yourself too hard";
 
         dialogues[2][0] = "i wonder how to open that door...";
+
+
     }
 
 
@@ -106,6 +115,8 @@ public class OldMan_NPC extends Entity{
 
         // Do character specific stuff
         facePlayer();
+
+
         startDialogue(this,dialogueSet);
 
 
@@ -115,7 +126,9 @@ public class OldMan_NPC extends Entity{
             dialogueSet--;
         }
 
-
+        if(dialogueSet >= 3){
+            dialogueSet = 0;
+        }
 
         if(gp.player.life < gp.player.maxLife/2){
             dialogueSet = 1;

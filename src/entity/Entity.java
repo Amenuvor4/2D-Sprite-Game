@@ -62,6 +62,7 @@ public class Entity {
     int knockBackCounter = 0;
     public int guardCounter = 0;
     int offBalanceCounter = 0;
+    public int progressCounter;
 
 
     // CHARACTER STATUS
@@ -74,7 +75,10 @@ public class Entity {
     public int mana;
 
     public String name;
+    public String difficulty;
+    public String task;
     public boolean collision = false;
+    public boolean completed;
     public int level;
     public int strength;
     public int dexterity;
@@ -206,8 +210,14 @@ public class Entity {
     public void startDialogue(Entity entity, int setNum){
         gp.gameState = gp.dialogueState;
         gp.ui.npc = entity;
-        dialogueSet = setNum;
+        if(!gp.ui.declinedQuest){
+            dialogueSet = setNum;
+        }else{
+            dialogueSet = 3;
+        }
+
     }
+    public void setDialogue(){}
     public void interact(){
 
     }

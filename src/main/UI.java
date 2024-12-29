@@ -4,6 +4,7 @@ package main;
  * when the character interacts with other NPCs or game objects.
  */
 
+import Quests.Quest1;
 import entity.Entity;
 import entity.OldMan_NPC;
 import object.OBJ_Coin_Bronze;
@@ -42,6 +43,7 @@ public class UI {
     ArrayList<Integer> messageCounter = new ArrayList<>();
 
     public boolean gameFinished = false;
+    public boolean declinedQuest;
     public String currentDialogue = "";
     public int commandNum = 0;
     public int titleScreenState = 0;
@@ -136,7 +138,7 @@ public class UI {
 
         // QUEST STATE
         if(gp.gameState == gp.questState){
-            drawQuestScreen(gp.player);
+            drawQuestScreen(gp.player, true);
         }
 
         // GAME OVER STATE
@@ -497,24 +499,27 @@ public class UI {
         drawSubWindow(x,y,width,height);
 
 
+
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 32));
         x += gp.tileSize;
         y += gp.tileSize;
+        int questX = x;
+        int questY = y + gp.tileSize*2;
 
         if(npc.dialogues[npc.dialogueSet][npc.dialogueIndex] != null){
-            currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
+            npc.currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
 
             char[] characters = npc.dialogues[npc.dialogueSet][npc.dialogueIndex].toCharArray();
 
             if(charIndex < characters.length){
                 // ADD SOUND HERE
-                gp.playSE(17);
+                gp.playSE(21);
                 String s = String.valueOf(characters[charIndex]);
                 combinedText = combinedText + s;
                 currentDialogue = combinedText;
                 charIndex++;
             }
-            if(gp.keyH.enterPressed && !npc.questDialogues.contains(currentDialogue)){
+            if(gp.keyH.enterPressed && !npc.questDialogues.contains(npc.currentDialogue)){
                 charIndex = 0;
                 combinedText = "";
                 if(gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState){
@@ -522,13 +527,38 @@ public class UI {
                     gp.keyH.enterPressed = false;
                 }
             }
-            if(npc.questDialogues.contains(currentDialogue)){
+            if(npc.questDialogues.contains(npc.currentDialogue)){
                 String text = "Accept Quest";
-                x -= 20;
-                y -= 10;
-                g2.drawString(text, x, y);
+                g2.drawString(text, questX, questY);
                 if(commandNum == 0){
-                    g2.drawString(">", x-40, y);
+                    g2.drawString(">",  questX-20, questY);
+                    if(gp.keyH.enterPressed){
+                        charIndex = 0;
+                        combinedText = "";
+                        gp.player.quests.add(new Quest1(gp));
+                        gp.player.currentQuest = gp.player.quests.get(0);
+                        npc.dialogueIndex++;
+                        gp.keyH.enterPressed = false;
+
+                    }
+                }
+
+                text = "Decline Quest";
+                questX += questX*2 - questX/2;
+                g2.drawString(text, questX, questY);
+                if(commandNum == 1){
+                    g2.drawString(">", questX-20, questY);
+                    if(gp.keyH.enterPressed){
+                        declinedQuest = true;
+                        npc.setDialogue();
+                        charIndex = 0;
+                        combinedText = "";
+                        npc.dialogueIndex++;
+                        gp.keyH.enterPressed = false;
+                        declinedQuest = false;
+                    }
+
+
                 }
 
             }
@@ -719,7 +749,7 @@ public class UI {
     }
 
 
-    public void drawQuestScreen(Entity entity){
+    public void drawQuestScreen(Entity entity, boolean cursor){
         g2.setColor(Color.white);
         g2.setFont(g2.getFont().deriveFont(32F));
 
@@ -738,34 +768,137 @@ public class UI {
 
         }
         else{
-            g2.setFont(g2.getFont().deriveFont(24F));
-            int circleDiameter  = 16;
-            int circleX = textX - 30;
-            int circleY = textY - circleDiameter + 4;
-            textX += 10;
-            textY -= 10;
+            //TEXT
+            g2.setFont(g2.getFont().deriveFont(32F));
+            int startX = textX + 40;
+            int startY = textY + 30;
+            //SLOT
+            final int slotXStart = frameX + 20;
+            final int slotYStart = frameY + 20;
+            int slotX =startX-45;;
+            int slotY =  textX + 25;;
+            int slotSize = gp.tileSize -20;
+
             for(int i = 0; i< entity.quests.size(); i++){
                 Entity quest = entity.quests.get(i);
 
-                if(quest.equals(gp.player.currentQuest)){
-                    g2.setColor(Color.green);
-                }else{
-                    g2.setColor(Color.gray);
+
+                if(quest == gp.player.currentQuest){
+                    g2.setColor(new Color(240,190,90));
+                    g2.fillRoundRect(slotX, slotY, slotSize, slotSize, 10, 10);
                 }
+                // Highlight Rectangle for teh Selected Quest
+                if(commandNum == i){
+                    int highlightX = slotXStart - 10; // Rectangle X position
+                    int highlightY = startY - lineHeight ; // Rectangle Y position
+                    int highlightWidth = frameWidth - 20; // Rectangle width
+                    int highlightHeight = lineHeight + 15; // Rectangle height
 
-                //Draw Circle
-                g2.fillOval(circleX, circleY, circleDiameter, circleDiameter);
+                    // Draw Highlight Rectangle
+                    g2.setColor(new Color(255, 255, 255, 100)); // Semi-transparent white
+                    g2.fillRoundRect(highlightX, highlightY, highlightWidth, highlightHeight, 10, 10);
 
+
+
+
+                }
                 //Draw the quest name
                 g2.setColor(Color.white);
-                g2.drawString(quest.name, textX, textY);
-                circleY -= circleDiameter + 10;
-                textY -= lineHeight;
+                g2.drawString(quest.name, startX, startY);
+
+
+                startY += lineHeight;
             }
+            if(cursor){
+                int cursorX = startX-45;
+                int cursorY = textX + 25;
+
+
+
+                //DRAW CURSOR
+                g2.setColor(Color.WHITE);
+                g2.setStroke(new BasicStroke(3.0f));
+                g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
+
+                // DESCRIPTOR FRAME
+                int dFrameX = gp.tileSize * 10;
+                int dFrameY = frameY;
+                int dFrameWidth = gp.tileSize * 9;
+                int dFrameHeight = gp.tileSize * 10;
+                drawSubWindow(dFrameX, dFrameY, dFrameWidth, dFrameHeight);
+
+                // I want to add the image above the description.
+
+                // Difficulty
+                int dTextX = dFrameX + 20;
+                int dTextY = (int) (dFrameY + gp.tileSize * 5.25);
+
+
+
+                // DESCRIPTOR IMAGE
+                int imageX = dFrameX + (dFrameWidth - gp.tileSize * 7) / 2; // Center the image
+                int imageY = dFrameY + 20; // Position the image at the top
+                int imageWidth = gp.tileSize * 7;
+                int imageHeight = gp.tileSize * 4;
+
+
+                // DESCRIPTION TEXT
+                int itemIndex = getItemIndexOnSlot(playerSlotCol, playerSlotRow);
+
+                if (itemIndex >= 0 && itemIndex < entity.quests.size()) {
+                    Entity currentQuest = entity.quests.get(itemIndex);
+
+                    // Draw the quest image
+                    Image questImage = currentQuest.image;
+                    if (questImage != null) {
+                        g2.drawImage(questImage, imageX, imageY, imageWidth, imageHeight, null);
+                    }
+
+                    // Draw the difficulty text with color
+                    g2.setFont(g2.getFont().deriveFont(32F));
+                    g2.drawString("Difficulty: ", dTextX, dTextY);
+                    g2.setColor(getDifficultyColor(currentQuest.difficulty));
+                    dTextX += 125;
+                    g2.drawString(currentQuest.difficulty, dTextX, dTextY);
+
+                    // Draw the description
+                    dTextX = dFrameX + 20;
+                    dTextY = dFrameY + gp.tileSize * 6;
+                    g2.setColor(Color.white);
+                    g2.setFont(g2.getFont().deriveFont(22F));
+
+                    for (String line : currentQuest.description.split("\n")) {
+                        g2.drawString(line, dTextX, dTextY);
+                        dTextY += 32;
+
+                    }
+
+                }
+
+
+            }
+
 
         }
 
     }
+
+    // Helper function to map difficulty levels to colors
+    private Color getDifficultyColor(String difficulty) {
+        switch (difficulty) {
+            case "Very Easy": return new Color(0, 120, 0); // Dark green
+            case "Easy": return new Color(100, 200, 90); // Light green
+            case "Moderate": return new Color(180, 240, 50); // Green-yellow
+            case "Intermediate": return new Color(240, 240, 0); // Yellow
+            case "Challenging": return new Color(255, 200, 0); // Orange-yellow
+            case "Hard": return new Color(255, 140, 0); // Orange
+            case "Very Hard": return new Color(255, 80, 0); // Reddish-orange
+            case "Extremely Hard": return new Color(255, 40, 0); // Red
+            case "Insanely Hard": return new Color(150, 0, 0); // Dark red
+            default: return Color.BLACK; // Unknown
+        }
+    }
+
     public void drawOptionsScreen(){
         g2.setColor(Color.white);
         g2.setFont(g2.getFont().deriveFont(32F));

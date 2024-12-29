@@ -553,39 +553,53 @@ public class Player extends Entity {
         }
     }
     public void selectItem() {
-        int itemIndex = gp.ui.getItemIndexOnSlot(gp.ui.playerSlotCol, gp.ui.playerSlotRow);
-        if(itemIndex < inventory.size()){
-            Entity selectedItem = inventory.get(itemIndex);
+        if(gp.gameState == gp.characterState){
+            int itemIndex = gp.ui.getItemIndexOnSlot(gp.ui.playerSlotCol, gp.ui.playerSlotRow);
+            if(itemIndex < inventory.size()){
+                Entity selectedItem = inventory.get(itemIndex);
 
-            if(selectedItem.type == type_sword || selectedItem.type == type_axe || selectedItem.type == type_pickaxe){
-                currentWeapon = selectedItem;
-                attack = getAttack();
-                getAttackImage();
-            }
-            if(selectedItem.type == type_shield){
-                currentShield = selectedItem;
-            }
-            if(selectedItem.type  == type_light){
-                if(currentLight == selectedItem){
-                    currentLight = null;
+                if(selectedItem.type == type_sword || selectedItem.type == type_axe || selectedItem.type == type_pickaxe){
+                    currentWeapon = selectedItem;
+                    attack = getAttack();
+                    getAttackImage();
                 }
-                else{
-                    currentLight = selectedItem;
+                if(selectedItem.type == type_shield){
+                    currentShield = selectedItem;
                 }
-                lightUpdated = true;
-            }
-            if(selectedItem.type == type_consumable){
-                if(selectedItem.use(this)){
-                    if(!selectedItem.stackable || selectedItem.amount <= 1){
-                        inventory.remove(itemIndex);
-                    }else{
-                        selectedItem.amount--;
-
-
+                if(selectedItem.type  == type_light){
+                    if(currentLight == selectedItem){
+                        currentLight = null;
                     }
+                    else{
+                        currentLight = selectedItem;
+                    }
+                    lightUpdated = true;
+                }
+                if(selectedItem.type == type_consumable){
+                    if(selectedItem.use(this)){
+                        if(!selectedItem.stackable || selectedItem.amount <= 1){
+                            inventory.remove(itemIndex);
+                        }else{
+                            selectedItem.amount--;
+
+
+                        }
+                    }
+
+                }
+            }
+        }
+        if(gp.gameState == gp.questState){
+            int itemIndex = gp.ui.getItemIndexOnSlot(gp.ui.playerSlotCol, gp.ui.playerSlotRow);
+            if (itemIndex >= 0 && itemIndex < quests.size()){
+                if(currentQuest != quests.get(itemIndex)){
+                    currentQuest = quests.get(itemIndex);
+                }else{
+                    currentQuest = null;
                 }
 
             }
+
         }
     }
     public void interactNPC(int i){

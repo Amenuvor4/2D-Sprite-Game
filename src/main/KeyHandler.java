@@ -1,5 +1,7 @@
 package main;
 
+import entity.Entity;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -12,6 +14,7 @@ public class KeyHandler implements KeyListener {
     public boolean godMode = false;
     public boolean teleport = false;
     //DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG//DEBUG
+    public Entity npc;
 
     public KeyHandler(GamePanel gp){
         this.gp = gp;
@@ -118,6 +121,9 @@ public class KeyHandler implements KeyListener {
 
     public void dialogueState(int code) {
         if (code == KeyEvent.VK_ENTER) {enterPressed = true;}
+
+        if (code == KeyEvent.VK_A) {gp.ui.commandNum = (gp.ui.commandNum-- <= 0) ? 1 : gp.ui.commandNum--;}
+        if (code == KeyEvent.VK_D) {gp.ui.commandNum = (gp.ui.commandNum++ >= 1) ? 0 : gp.ui.commandNum++;}
     }
 
     public void characterState(int code) {
@@ -190,11 +196,37 @@ public class KeyHandler implements KeyListener {
 
     }
 
-    public void questState(int code){
-        if(code == KeyEvent.VK_Q){
+    public void questState(int code) {
+        // Exit the quest log
+        if (code == KeyEvent.VK_Q) {
             gp.gameState = gp.playState;
         }
+
+        if(code == KeyEvent.VK_ENTER) {
+            gp.player.selectItem();
+            gp.playSE(4);
+        }
+
+        // Navigate up the quest list
+        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+            gp.ui.commandNum--;
+            if (gp.ui.commandNum < 0) {
+                gp.ui.commandNum = gp.player.quests.size() - 1; // Wrap to the bottom
+            }
+            gp.playSE(9); // Optional sound effect
+        }
+
+        // Navigate down the quest list
+        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+            gp.ui.commandNum++;
+            if (gp.ui.commandNum >= gp.player.quests.size()) {
+                gp.ui.commandNum = 0; // Wrap to the top
+            }
+            gp.playSE(9); // Optional sound effect
+        }
     }
+
+
 
     public void gameOverState(int code){
         if(code == KeyEvent.VK_W || code == KeyEvent.VK_UP){

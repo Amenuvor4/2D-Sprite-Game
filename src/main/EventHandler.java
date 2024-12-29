@@ -57,6 +57,8 @@ public class EventHandler {
         eventMaster.dialogues[0][0] = "You fall into a pit!";
         eventMaster.dialogues[1][0] = "You have found the healing fountain\n" + "The progress has been saved";
         eventMaster.dialogues[1][1] = "Damn this is good Water";
+        eventMaster.dialogues[2][0] = "You have completed the quest.";
+        eventMaster.dialogues[2][1] = "Go back to old man and let him know";
 
     }
 
@@ -90,6 +92,9 @@ public class EventHandler {
                 teleport(3, 26, 41, gp.dungeon);
             }
             gp.keyH.teleport = false;
+        }
+        if(gp.player.currentQuest.completed){
+            questCompleted(gp.dialogueState);
         }
 
 
@@ -151,6 +156,14 @@ public class EventHandler {
 
         gp.keyH.enterPressed = false;
 
+    }
+
+    public void questCompleted(int gameState){
+
+        gp.gameState = gameState;
+        gp.playSE(3);
+        gp.player.attackCancel = true;
+        eventMaster.startDialogue(eventMaster, 2);
 
 
     }
