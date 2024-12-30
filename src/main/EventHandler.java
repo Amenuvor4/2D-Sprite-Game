@@ -93,8 +93,10 @@ public class EventHandler {
             }
             gp.keyH.teleport = false;
         }
-        if(gp.player.currentQuest.completed){
+        if(gp.player.currentQuest != null && gp.player.currentQuest.completed && !gp.player.questFinished){
             questCompleted(gp.dialogueState);
+            gp.player.questFinished = true;
+
         }
 
 
@@ -164,6 +166,7 @@ public class EventHandler {
         gp.playSE(3);
         gp.player.attackCancel = true;
         eventMaster.startDialogue(eventMaster, 2);
+
 
 
     }

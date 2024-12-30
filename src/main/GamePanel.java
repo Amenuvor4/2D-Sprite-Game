@@ -14,6 +14,7 @@ import java.util.Stack;
 import javax.swing.JPanel;
 
 
+import Quests.QuestManager;
 import ai.PathFinder;
 import data.SaveLoad;
 import entity.Entity;
@@ -65,6 +66,7 @@ public class GamePanel extends JPanel implements Runnable {
     SaveLoad saveLoad = new SaveLoad(this);
     public EntityGenerator eGenerator = new EntityGenerator(this);
     public CutsceneManager csManager = new CutsceneManager(this);
+    public QuestManager questManager = new QuestManager(this);
     Thread gameThread;
 
     // ENTITY AND OBJECT
@@ -72,6 +74,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Entity[][] obj = new Entity[maxMap][20];
     public Entity[][] npc = new Entity[maxMap][10];
     public Entity[][] monster = new Entity[maxMap][20];
+    public Entity[][] quest = new Entity[maxMap][20];
     public InteractiveTile[][] iTile = new InteractiveTile[maxMap][50];
     public Entity[][] projectile = new Entity[maxMap][20];
     // public ArrayList<Entity> projectileList = new ArrayList<>();
@@ -230,6 +233,7 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
 
+            // MONSTER
             for (int i = 0; i < monster[1].length; i++) {
                 if (monster[currentMap][i] != null) {
                     if (monster[currentMap][i].alive  && !monster[currentMap][i].dying) {
@@ -241,7 +245,7 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 }
             }
-
+            // PROJECTILE
             for (int i = 0; i < projectile[1].length; i++) {
                 if (projectile[currentMap][i] != null) {
                     if (projectile[currentMap][i].alive) {
@@ -253,6 +257,7 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
 
+            // PARTICLE
             for (int i = 0; i < particleList.size(); i++) {
                 if (particleList.get(i) != null) {
                     if (particleList.get(i).alive) {
@@ -263,14 +268,19 @@ public class GamePanel extends JPanel implements Runnable {
                     }
                 }
             }
-
+            // INTERACTIVE TILE
             for (int i = 0; i < iTile[1].length; i++) {
                 if (iTile[currentMap][i] != null) {
                     iTile[currentMap][i].update();
                 }
             }
 
+            // EVENT MANAGER
             eManager.update();
+
+
+
+
         }
 
         if (gameState == pauseState) {

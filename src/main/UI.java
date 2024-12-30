@@ -4,6 +4,7 @@ package main;
  * when the character interacts with other NPCs or game objects.
  */
 
+import Quests.Quest;
 import Quests.Quest1;
 import entity.Entity;
 import entity.OldMan_NPC;
@@ -112,6 +113,7 @@ public class UI {
             drawPlayerLife();
             drawMonsterLife();
             drawMessage();
+            drawQuestObjective(g2);
         }
         //PAUSE STATE
         if(gp.gameState == gp.pauseState){
@@ -492,63 +494,71 @@ public class UI {
     }
     public void drawDialogScreen(){
         // WINDOW COMPONENTS
-        int x = gp.tileSize*2;
-        int y = gp.tileSize/2;
-        int width = gp.screenWidth - gp.tileSize*4;
-        int height = gp.tileSize*4;
-        drawSubWindow(x,y,width,height);
-
-
+        int x = gp.tileSize * 2;
+        int y = gp.tileSize / 2;
+        int width = gp.screenWidth - gp.tileSize * 4;
+        int height = gp.tileSize * 4;
+        drawSubWindow(x, y, width, height);
 
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 32));
         x += gp.tileSize;
         y += gp.tileSize;
         int questX = x;
-        int questY = y + gp.tileSize*2;
+        int questY = y + gp.tileSize * 2;
 
-        if(npc.dialogues[npc.dialogueSet][npc.dialogueIndex] != null){
+        if (npc.dialogues[npc.dialogueSet][npc.dialogueIndex] != null) {
             npc.currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
 
             char[] characters = npc.dialogues[npc.dialogueSet][npc.dialogueIndex].toCharArray();
 
-            if(charIndex < characters.length){
+            if (charIndex < characters.length) {
                 // ADD SOUND HERE
-                gp.playSE(21);
+                gp.playSE(21); // Ensure the sound plays correctly
                 String s = String.valueOf(characters[charIndex]);
                 combinedText = combinedText + s;
                 currentDialogue = combinedText;
                 charIndex++;
             }
-            if(gp.keyH.enterPressed && !npc.questDialogues.contains(npc.currentDialogue)){
+
+            if (gp.keyH.enterPressed && !npc.questDialogues.contains(npc.currentDialogue)) {
                 charIndex = 0;
                 combinedText = "";
-                if(gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState){
+                if (gp.gameState == gp.dialogueState || gp.gameState == gp.cutSceneState) {
                     npc.dialogueIndex++;
                     gp.keyH.enterPressed = false;
                 }
             }
-            if(npc.questDialogues.contains(npc.currentDialogue)){
+
+            // Handle quest dialogue options
+            if (npc.questDialogues.contains(npc.currentDialogue)) {
                 String text = "Accept Quest";
                 g2.drawString(text, questX, questY);
-                if(commandNum == 0){
-                    g2.drawString(">",  questX-20, questY);
-                    if(gp.keyH.enterPressed){
+                if (commandNum == 0) {
+                    g2.drawString(">", questX - 20, questY);
+                    if (gp.keyH.enterPressed) {
                         charIndex = 0;
                         combinedText = "";
-                        gp.player.quests.add(new Quest1(gp));
-                        gp.player.currentQuest = gp.player.quests.get(0);
+
+                        // Use QuestManager to create and add quest
+                        Quest newQuest = gp.questManager.createQuest("Quest1");
+                        if (newQuest != null) {
+                            gp.questManager.addQuest(newQuest);
+                            gp.player.quests.add(newQuest);
+                            gp.player.currentQuest = newQuest;
+                        }
+
                         npc.dialogueIndex++;
                         gp.keyH.enterPressed = false;
-
                     }
                 }
 
+                // Decline quest
                 text = "Decline Quest";
-                questX += questX*2 - questX/2;
+                questX += questX * 2 - questX / 2;
                 g2.drawString(text, questX, questY);
-                if(commandNum == 1){
-                    g2.drawString(">", questX-20, questY);
-                    if(gp.keyH.enterPressed){
+                if (commandNum == 1) {
+                    g2.drawString(">", questX - 20, questY);
+                    if (gp.keyH.enterPressed) {
                         declinedQuest = true;
                         npc.setDialogue();
                         charIndex = 0;
@@ -557,32 +567,31 @@ public class UI {
                         gp.keyH.enterPressed = false;
                         declinedQuest = false;
                     }
-
-
                 }
-
             }
-        }
-        else{
-            // If no text is in the array
+        } else {
+            // Handle dialogue transition
             npc.dialogueIndex = 0;
             if(gp.gameState == gp.dialogueState){
                 gp.gameState = gp.playState;
             }
-            if(gp.gameState == gp.cutSceneState){
+            if (gp.gameState == gp.dialogueState && npc.dialogues[npc.dialogueSet + 1][npc.dialogueIndex] != null) {
+                npc.dialogueSet++;
+            }
+
+            if (gp.gameState == gp.cutSceneState) {
                 gp.csManager.scenePhase++;
+
             }
         }
 
-
-        /* Splits the text at the keyword "\n". After that we draw the new line inside
-        the dialog bar in which the position goes towards the middle of the screen by 40 frames */
-        for(String line: currentDialogue.split("\n")){
+        // Splitting the text and drawing new lines for multi-line dialogue
+        for (String line : currentDialogue.split("\n")) {
             g2.drawString(line, x, y);
-            y += 40;
+            y += 40; // Adjust this if needed to avoid overlap
         }
-
     }
+
     public void drawInventory( Entity entity, boolean cursor){
         int frameX = 0;
         int frameY = 0;
@@ -846,7 +855,7 @@ public class UI {
                 int itemIndex = getItemIndexOnSlot(playerSlotCol, playerSlotRow);
 
                 if (itemIndex >= 0 && itemIndex < entity.quests.size()) {
-                    Entity currentQuest = entity.quests.get(itemIndex);
+                    Quest currentQuest = entity.quests.get(itemIndex);
 
                     // Draw the quest image
                     Image questImage = currentQuest.image;
@@ -881,6 +890,31 @@ public class UI {
 
         }
 
+    }
+
+    public void drawQuestObjective(Graphics2D g2){
+        if(gp.player.currentQuest != null){
+            g2.setFont(g2.getFont().deriveFont(30f));
+            g2.setColor(Color.white);
+
+            //Position for euest text
+            int x = gp.screenWidth - 350;
+            int y = 50;
+
+            //Display quest name
+            g2.drawString("Quest: " + gp.player.currentQuest.name, x, y); y += 30;
+            // Display quest objective
+            g2.drawString("Objective: " + gp.player.currentQuest.task, x, y); y += 30;
+            //Display Progress
+            g2.drawString("Progress: " + gp.player.currentQuest.progressCounter + "/" + gp.player.currentQuest.progressGoal, x, y); y += 30;
+
+            if(gp.player.currentQuest.completed){
+                g2.setColor(new Color(0,100,0));
+                g2.drawString("STATUS: Completed", x, y);
+
+            }
+
+        }
     }
 
     // Helper function to map difficulty levels to colors

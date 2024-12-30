@@ -1,5 +1,6 @@
 package entity;
 
+import Quests.Quest;
 import main.GamePanel;
 import main.KeyHandler;
 import object.*;
@@ -13,10 +14,13 @@ public class Player extends Entity {
     public final int screenY;
     int standCounter =0;
     public boolean attackCanceled = false;
-    public boolean lightUpdated = false;
+    public boolean hasFoundObject = false;
+   public boolean lightUpdated = false;
+   public boolean monsterKilled = false;
+   public boolean questFinished = false;
+    public Quest currentQuest;
     // indicates how many keys a player currently has.
     //public int hasKey = 0;
-
 
     public boolean attackCancel = false;
     /**
@@ -27,6 +31,8 @@ public class Player extends Entity {
      * @param gp  The GamePanel object which contains game-related information and settings.
      * @param keyH The KeyHandler object to manage user inputs.
      */
+
+
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         type = type_player;
@@ -64,7 +70,7 @@ public class Player extends Entity {
         strength = 5;
         dexterity = 5;
         exp = 0;
-        nextLevelExp = 5;
+        nextLevelExp = 50;
         coin = 10000;
         currentWeapon = new OBJ_Sword_Normal(gp);
         currentShield = new OBJ_Shield_Wood(gp);
@@ -404,6 +410,10 @@ public class Player extends Entity {
                 gp.playSE(14);
             }
         }
+        // Check for quest progress if there's an active quest
+        if (currentQuest != null && !currentQuest.completed) {
+            currentQuest.update(currentQuest.quest_type);  // Pass the slayMonster_type to update the quest
+        }
 
     }
 
@@ -528,13 +538,18 @@ public class Player extends Entity {
                     gp.ui.addMessage(gp.monster[gp.currentMap][i].name + " Slayed!"); // FIXED
                     gp.ui.addMessage("Exp: +" + gp.monster[gp.currentMap][i].exp); // FIXED
                     exp += gp.monster[gp.currentMap][i].exp; // FIXED
+                    monsterKilled = true;
+
                     checkLevelUp();
+
+
                 }
             }
 
 
         }
     }
+
 
     public void checkLevelUp(){
         if(exp >= nextLevelExp){
@@ -594,7 +609,7 @@ public class Player extends Entity {
             if (itemIndex >= 0 && itemIndex < quests.size()){
                 if(currentQuest != quests.get(itemIndex)){
                     currentQuest = quests.get(itemIndex);
-                }else{
+                }else if(currentQuest != quests.get(itemIndex)){
                     currentQuest = null;
                 }
 

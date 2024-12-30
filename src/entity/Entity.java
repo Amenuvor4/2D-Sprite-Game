@@ -1,5 +1,6 @@
 package entity;
 
+import Quests.Quest;
 import main.GamePanel;
 import main.UtilityTool;
 
@@ -75,10 +76,7 @@ public class Entity {
     public int mana;
 
     public String name;
-    public String difficulty;
-    public String task;
     public boolean collision = false;
-    public boolean completed;
     public int level;
     public int strength;
     public int dexterity;
@@ -91,7 +89,6 @@ public class Entity {
     public int motion2_direction;
     public Entity currentWeapon;
     public Entity currentShield;
-    public Entity currentQuest;
     public String currentDialogue;
     public Entity currentLight;
     public Projectile projectile;
@@ -100,7 +97,7 @@ public class Entity {
 
     //ITEM ATTRIBUTES
     public ArrayList<Entity> inventory = new ArrayList<>();
-    public ArrayList<Entity> quests = new ArrayList<>();
+    public ArrayList<Quest> quests = new ArrayList<>();
     public final int maxInventorySize = 20;
     public int value;
     public int attackValue;
