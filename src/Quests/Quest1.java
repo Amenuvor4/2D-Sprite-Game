@@ -2,6 +2,7 @@ package Quests;
 
 import entity.Entity;
 import main.GamePanel;
+import object.OBJ_Shield_Blue;
 import object.OBJ_Shield_Wood;
 
 import javax.swing.*;
@@ -20,7 +21,7 @@ public class Quest1 extends Quest {
         quest_type = slayMonster_type;
         progressCounter = 0;
         exp = 5;
-        reward = new OBJ_Shield_Wood(gp);
+        reward = new OBJ_Shield_Blue(gp);
         progressGoal = 5;
         level = 1;
         image = setup("/quests/quest1", gp.tileSize * 7, gp.tileSize * 4);

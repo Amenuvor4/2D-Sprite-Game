@@ -59,6 +59,9 @@ public class OldMan_NPC extends Entity{
             dialogues[2][0] = "Well done, lad!";
             dialogues[2][1] = "You’ve completed the task, and I’m impressed.";
             dialogues[2][2] = "Take this as a reward!";
+            if(gp.player.canObtainItem(gp.player.currentQuest.reward)){
+                gp.playSE(4);
+            }
         }
 
         if (gp.player.life < gp.player.maxLife / 2) {
