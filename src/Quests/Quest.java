@@ -19,7 +19,7 @@ public class Quest extends Entity {
     public final int findObject_type = 1;
     public final int completeEvent_type = 2;
     public Entity reward;
-
+// THis is a
     GamePanel gp;
 
 
